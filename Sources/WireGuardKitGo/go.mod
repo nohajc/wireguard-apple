@@ -13,4 +13,4 @@ require (
 	golang.zx2c4.com/wintun v0.0.0-20230126152724-0fa3db229ce2 // indirect
 )
 
-replace golang.zx2c4.com/wireguard => ../../../wireguard-go
+replace golang.zx2c4.com/wireguard => github.com/nohajc/wireguard-go v0.0.0-20230907185241-8b6fbf735c5e
