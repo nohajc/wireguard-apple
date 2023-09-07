@@ -120,16 +120,19 @@ func wgTurnOn(settings *C.char, tunFd int32) int32 {
 		return -1
 	}
 
-	ifaceName, err := tun.Name()
-	if err != nil {
-		logger.Errorf("Unable to get interface name: %v", err)
-		return -1
-	}
+	var uapi net.Listener
+	if runtime.GOOS != "ios" {
+		ifaceName, err := tun.Name()
+		if err != nil {
+			logger.Errorf("Unable to get interface name: %v", err)
+			return -1
+		}
 
-	uapi, err := openUapiSocket(logger, ifaceName, dev)
-	if err != nil {
-		logger.Errorf("Unable to listen on UAPI socket: %v", err)
-		return -1
+		uapi, err = openUapiSocket(logger, ifaceName, dev)
+		if err != nil {
+			logger.Errorf("Unable to listen on UAPI socket: %v", err)
+			return -1
+		}
 	}
 
 	dev.Up()
@@ -190,9 +193,12 @@ func wgTurnOff(tunnelHandle int32) {
 	}
 	delete(tunnelHandles, tunnelHandle)
 	dev.Close()
-	err := dev.uapi.Close()
-	if err != nil {
-		logger.Errorf("Unable to close UAPI socket: %v", err)
+
+	if dev.uapi != nil {
+		err := dev.uapi.Close()
+		if err != nil {
+			logger.Errorf("Unable to close UAPI socket: %v", err)
+		}
 	}
 }
 
